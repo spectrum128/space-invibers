@@ -8,6 +8,17 @@ if (!canvas || !ctx) {
 }
 
 const game = new Game(canvas, ctx);
+const btnLeft = document.getElementById("btn-left");
+const btnRight = document.getElementById("btn-right");
+const btnShoot = document.getElementById("btn-shoot");
+const btnStart = document.getElementById("btn-start");
+const btnPause = document.getElementById("btn-pause");
+
+const touchState = {
+  left: false,
+  right: false,
+  shoot: false
+};
 
 const keys = {
   ArrowLeft: "left",
@@ -49,10 +60,109 @@ window.addEventListener("keyup", (event) => {
   }
 });
 
+function handleStartAction() {
+  if (game.state === "start") {
+    game.startGame();
+  } else if (game.state === "gameOver") {
+    game.restart();
+  } else if (game.state === "win") {
+    game.restart({ preserveScore: true, nextLevel: true });
+  }
+}
+
+function bindHoldButton(button, onStart, onEnd) {
+  if (!button) {
+    return;
+  }
+
+  const pressStart = (event) => {
+    event.preventDefault();
+    button.classList.add("is-pressed");
+    onStart();
+  };
+
+  const pressEnd = (event) => {
+    event.preventDefault();
+    button.classList.remove("is-pressed");
+    onEnd();
+  };
+
+  button.addEventListener("pointerdown", pressStart);
+  button.addEventListener("pointerup", pressEnd);
+  button.addEventListener("pointercancel", pressEnd);
+  button.addEventListener("pointerleave", pressEnd);
+}
+
+bindHoldButton(
+  btnLeft,
+  () => {
+    touchState.left = true;
+    game.input.left = true;
+  },
+  () => {
+    touchState.left = false;
+    game.input.left = false;
+  }
+);
+
+bindHoldButton(
+  btnRight,
+  () => {
+    touchState.right = true;
+    game.input.right = true;
+  },
+  () => {
+    touchState.right = false;
+    game.input.right = false;
+  }
+);
+
+bindHoldButton(
+  btnShoot,
+  () => {
+    touchState.shoot = true;
+    game.firePlayerShot();
+  },
+  () => {
+    touchState.shoot = false;
+  }
+);
+
+if (btnStart) {
+  btnStart.addEventListener("pointerdown", (event) => {
+    event.preventDefault();
+    btnStart.classList.add("is-pressed");
+  });
+  btnStart.addEventListener("pointerup", (event) => {
+    event.preventDefault();
+    btnStart.classList.remove("is-pressed");
+    handleStartAction();
+  });
+  btnStart.addEventListener("pointercancel", () => btnStart.classList.remove("is-pressed"));
+  btnStart.addEventListener("pointerleave", () => btnStart.classList.remove("is-pressed"));
+}
+
+if (btnPause) {
+  btnPause.addEventListener("pointerdown", (event) => {
+    event.preventDefault();
+    btnPause.classList.add("is-pressed");
+  });
+  btnPause.addEventListener("pointerup", (event) => {
+    event.preventDefault();
+    btnPause.classList.remove("is-pressed");
+    game.togglePause();
+  });
+  btnPause.addEventListener("pointercancel", () => btnPause.classList.remove("is-pressed"));
+  btnPause.addEventListener("pointerleave", () => btnPause.classList.remove("is-pressed"));
+}
+
 let lastTimestamp = 0;
 function frame(timestamp) {
   const dt = Math.min(0.033, (timestamp - lastTimestamp) / 1000 || 0);
   lastTimestamp = timestamp;
+  if (touchState.shoot) {
+    game.firePlayerShot();
+  }
   game.update(dt);
   game.render();
   window.requestAnimationFrame(frame);

@@ -9,6 +9,17 @@
   <body>
     <main class="app">
       <canvas id="game-canvas" width="800" height="600" aria-label="Space Invaders game"></canvas>
+      <section class="touch-controls" aria-label="Touch game controls">
+        <div class="touch-controls__move">
+          <button id="btn-left" class="touch-btn" type="button" aria-label="Move left">◀</button>
+          <button id="btn-right" class="touch-btn" type="button" aria-label="Move right">▶</button>
+        </div>
+        <div class="touch-controls__action">
+          <button id="btn-shoot" class="touch-btn touch-btn--primary" type="button" aria-label="Shoot">Shoot</button>
+          <button id="btn-start" class="touch-btn" type="button" aria-label="Start, restart, or next level">Start</button>
+          <button id="btn-pause" class="touch-btn" type="button" aria-label="Pause or resume">Pause</button>
+        </div>
+      </section>
     </main>
     <script type="module" src="./src/main.js"></script>
   </body>
